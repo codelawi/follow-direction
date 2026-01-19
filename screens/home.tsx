@@ -97,14 +97,14 @@ export default function HomeScreen() {
     <View className="w-full h-full p-6">
       <View className="flex-1 justify-center items-center gap-y-3">
         <View className="flex-row items-center gap-x-2">
-          <Text className="text-4xl font-bold">اهلا بك</Text>
+          <Text className="text-4xl font-reg">اهلا بك</Text>
 
           <Animated.View style={{ transform: [{ rotate: rotation }] }}>
             <Icon size={40} color="#2563eb" source="hand-wave" />
           </Animated.View>
         </View>
 
-        <Text className="text-3xl text-center">{text}</Text>
+        <Text className="text-3xl text-center font-reg">{text}</Text>
       </View>
 
       <Button mode="contained" icon="car-clock" onPress={openNew}>

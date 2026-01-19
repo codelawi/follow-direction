@@ -11,6 +11,7 @@ import { Slot } from "expo-router";
 
 import LoadingPage from "@/components/loading-page";
 import { FullScreenModalProvider } from "@/providers/modal-provider";
+import { SnackbarProvider } from "@/providers/snackbar-provider";
 
 export default function Layout() {
   const [loaded] = useFonts({
@@ -45,7 +46,9 @@ export default function Layout() {
   return (
     <PaperProvider theme={theme}>
       <FullScreenModalProvider>
-        <Slot />
+        <SnackbarProvider>
+          <Slot />
+        </SnackbarProvider>
       </FullScreenModalProvider>
     </PaperProvider>
   );

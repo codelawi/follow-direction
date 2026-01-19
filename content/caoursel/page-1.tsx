@@ -7,7 +7,7 @@ import { useRequestStore } from "@/store/use-request-store";
 export default function FirstPage() {
   const { setData } = useRequestStore();
 
-  const [selected, setSelect] = useState<null | string>(null);
+  const [selected, setSelect] = useState<null | string>("عمان");
   const cities = [
     "عمان",
     "الزرقاء",

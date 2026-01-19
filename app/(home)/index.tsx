@@ -1,14 +1,9 @@
 import * as React from "react";
-import { BottomNavigation, Text } from "react-native-paper";
+import { BottomNavigation } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import HomeScreen from "@/screens/home";
-
-const MusicRoute = () => <Text>Music</Text>;
-
-const RecentsRoute = () => <Text>Recents</Text>;
-
-const NotificationsRoute = () => <Text>Notifications</Text>;
+import RecentScreen from "@/screens/recent";
 
 const MainScreen = () => {
   const [index, setIndex] = React.useState(0);
@@ -21,25 +16,11 @@ const MainScreen = () => {
     },
 
     { key: "recents", title: "السجل", focusedIcon: "history" },
-    {
-      key: "notifications",
-      title: "الاشعارات",
-      focusedIcon: "bell",
-      unfocusedIcon: "bell-outline",
-    },
-    {
-      key: "profile",
-      title: "الحساب",
-      focusedIcon: "account",
-      unfocusedIcon: "account-outline",
-    },
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
     home: HomeScreen,
-    recents: RecentsRoute,
-    notifications: NotificationsRoute,
-    profile: NotificationsRoute,
+    recents: RecentScreen,
   });
 
   return (

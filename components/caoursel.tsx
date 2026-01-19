@@ -1,8 +1,8 @@
 import React, {
-    forwardRef,
-    useImperativeHandle,
-    useRef,
-    useState,
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useState,
 } from "react";
 import { Dimensions, FlatList, View } from "react-native";
 
@@ -20,6 +20,7 @@ type CarouselProps = {
 
 export type CarouselRef = {
   goNext: () => void;
+  getIndex: () => number;
 };
 
 const Carousel = forwardRef<CarouselRef, CarouselProps>(
@@ -51,6 +52,7 @@ const Carousel = forwardRef<CarouselRef, CarouselProps>(
 
     useImperativeHandle(ref, () => ({
       goNext,
+      getIndex: () => activeIndex,
     }));
 
     return (
