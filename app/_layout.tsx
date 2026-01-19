@@ -1,24 +1,52 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import "@/global.css";
+import React from "react";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import {
+  MD3LightTheme as DefaultTheme,
+  PaperProvider,
+} from "react-native-paper";
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { useFonts } from "expo-font";
+import { Slot } from "expo-router";
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+import LoadingPage from "@/components/loading-page";
+import { FullScreenModalProvider } from "@/providers/modal-provider";
+
+export default function Layout() {
+  const [loaded] = useFonts({
+    Regular: require("../assets/fonts/reg.ttf"),
+    Light: require("../assets/fonts/light.ttf"),
+    ExtraLight: require("../assets/fonts/extralight.ttf"),
+    Medium: require("../assets/fonts/med.ttf"),
+    Bold: require("../assets/fonts/bold.ttf"),
+    SemiBold: require("../assets/fonts/semibold.ttf"),
+  });
+
+  if (!loaded) return <LoadingPage />;
+
+  const theme = {
+    ...DefaultTheme,
+    fonts: {
+      ...DefaultTheme.fonts,
+      bodyLarge: { fontFamily: "Regular" },
+      bodyMedium: { fontFamily: "Regular" },
+      titleLarge: { fontFamily: "Bold" },
+      titleMedium: { fontFamily: "SemiBold" },
+      labelLarge: { fontFamily: "Medium" },
+    },
+    colors: {
+      ...DefaultTheme.colors,
+      primary: "#2563eb",
+      background: "#ffffff",
+      secondary: "#facc15",
+    },
+  };
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <PaperProvider theme={theme}>
+      <FullScreenModalProvider>
+        <Slot />
+      </FullScreenModalProvider>
+    </PaperProvider>
   );
 }
