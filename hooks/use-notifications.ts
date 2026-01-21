@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { useCallback, useEffect, useRef } from "react";
-import { Alert, Platform } from "react-native";
+import { Platform } from "react-native";
 import { useAuth } from "./use-auth";
 
 // Configure notification handler for foreground
@@ -81,7 +81,6 @@ export default function usePushNotification() {
 
     // Show alert for test notifications
     if (data?.type === "test") {
-      Alert.alert("Test Notification", "You tapped a test notification!");
     }
   }, []);
 
@@ -164,7 +163,6 @@ export default function usePushNotification() {
           .filter(Boolean) as string[];
 
         if (tokens.length === 0) {
-          Alert.alert("لا يوجد مستخدمين مفعلين للإشعارات");
           return { sent: 0, total: 0 };
         }
 
@@ -212,11 +210,10 @@ export default function usePushNotification() {
           });
         }
 
-        Alert.alert(`تم الإرسال إلى ${tokens.length} مستخدم`);
         return { sent: tokens.length, total: tokens.length, result };
       } catch (error) {
         console.error("Error sending to all users:", error);
-        Alert.alert("حدث خطأ أثناء الإرسال");
+
         throw error;
       }
     },
@@ -228,7 +225,6 @@ export default function usePushNotification() {
     try {
       const token = await registerToken();
       if (!token) {
-        Alert.alert("فشل الحصول على رمز الإشعارات");
         return;
       }
 
@@ -259,16 +255,10 @@ export default function usePushNotification() {
       console.log("Test notification result:", result);
 
       if (result.data) {
-        Alert.alert(
-          "تم الإرسال",
-          "تم إرسال الإشعار التجريبي! تحقق من الإشعارات.",
-        );
       } else {
-        Alert.alert("خطأ", JSON.stringify(result));
       }
     } catch (error) {
       console.error("Error sending test notification:", error);
-      Alert.alert("خطأ", "فشل إرسال الإشعار التجريبي");
     }
   }, [registerToken]);
 

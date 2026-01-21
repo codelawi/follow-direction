@@ -90,21 +90,41 @@ export default function RequestsDashboard() {
     showSnackbar("تم الرفض");
   };
 
+  const handleDone = async (id: string) => {
+    const { error } = await supabase
+      .from("requests")
+      .update({ status: "done" })
+      .eq("id", id);
+
+    if (error) {
+      showSnackbar("حدث خطأ");
+      return;
+    }
+
+    setRequests((prev) =>
+      prev.map((req) => (req.id === id ? { ...req, status: "done" } : req)),
+    );
+    showSnackbar("تم الإنجاز");
+  };
+
   const handleOpenModal = (request: any) => {
     open(
-      <SafeAreaView>
+      <SafeAreaView className="">
         <IconButton icon="close" size={24} onPress={() => close()} />
-        <RequestDetailsContent
-          from={request.from}
-          to={request.to}
-          time={request.time}
-          phone={request.phone}
-          isFull={isAdminFullAccess}
-          status={request.status}
-          onDelete={() => handleDelete(request.id)}
-          onAccept={() => handleAccept(request.id)}
-          onReject={() => handleReject(request.id)}
-        />
+        <ScrollView className=" h-[90%]">
+          <RequestDetailsContent
+            from={request.from}
+            to={request.to}
+            time={request.time}
+            phone={request.phone}
+            isFull={isAdminFullAccess}
+            status={request.status}
+            onDelete={() => handleDelete(request.id)}
+            onAccept={() => handleAccept(request.id)}
+            onReject={() => handleReject(request.id)}
+            onDone={() => handleDone(request.id)}
+          />
+        </ScrollView>
       </SafeAreaView>,
     );
   };
@@ -170,18 +190,18 @@ export default function RequestsDashboard() {
                         {request.status === "pending" ? (
                           <Text className="text-yellow-500 text-xs border-yellow-500 border-[.5px] p-1 rounded-md font-reg">
                             {" "}
-                            في انتظار الموافقة
+                            انتظار الموافقة
                           </Text>
                         ) : request.status === "processing" ? (
-                          <Text className="text-blue-500 border-primary border-[.5px] p-1 rounded-md font-reg text-sm">
+                          <Text className="text-blue-500 border-primary border-[.5px] p-1 rounded-md font-reg text-xs">
                             قيد المعالجة
                           </Text>
                         ) : request.status === "done" ? (
-                          <Text className="text-green-500 border-green-500 border-[.5px] rounded-md text-sm font-reg p-1">
+                          <Text className="text-green-500 border-green-500 border-[.5px] rounded-md text-xs font-reg p-1">
                             مكتمل
                           </Text>
                         ) : (
-                          <Text className="text-red-500 border-red-500 border-[.5px] p-1 rounded-md text-sm font-reg">
+                          <Text className="text-red-500 border-red-500 border-[.5px] p-1 rounded-md text-xs font-reg">
                             مرفوض
                           </Text>
                         )}

@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase";
 import { useModal } from "@/providers/modal-provider";
-import { router } from "expo-router";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { Button, IconButton, TextInput } from "react-native-paper";
@@ -90,7 +89,6 @@ export default function CreateAccountContent() {
       }
 
       if (authData.user) {
-        // Optionally, update the profiles table with additional user info
         const { error: profileError } = await supabase.from("profiles").upsert({
           id: authData.user.id,
           full_name: username.trim(),
@@ -101,11 +99,7 @@ export default function CreateAccountContent() {
           // Continue anyway since auth succeeded
         }
 
-        setSuccess(
-          "تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني لتأكيد الحساب.",
-        );
-
-        router.replace("/");
+        setSuccess("تم إنشاء الحساب بنجاح! ");
 
         // Reset form after successful submission
         setTimeout(() => {

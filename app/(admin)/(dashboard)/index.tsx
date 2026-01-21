@@ -11,12 +11,10 @@ import RequestsDashboard from "@/admin/RequestsDashboard";
 import UsersDashboard from "@/admin/UsersDashboard";
 
 import { useAuth } from "@/hooks/use-auth";
-import usePushNotification from "@/hooks/use-notifications";
 
 const Dashboard = () => {
   const { profile, loading } = useAuth();
   const [index, setIndex] = React.useState(0);
-  const { registerToken } = usePushNotification();
 
   // This MUST be unconditional
 
@@ -41,17 +39,6 @@ const Dashboard = () => {
     );
   }
 
-  // if (isLoading) {
-  //   return (
-  //     <View className="flex-1 justify-center items-center">
-  //       <ActivityIndicator size="large" color="#2563eb" />
-  //       <Text className="mt-4 text-gray-600 font-reg">
-  //         جاري اعداد الاشعارات...
-  //       </Text>
-  //     </View>
-  //   );
-  // }
-
   // Determine user access level
   const userAccess = profile.access || "limit";
 
@@ -72,7 +59,7 @@ const Dashboard = () => {
     } else {
       return [
         { key: "requests", title: "الطلبات", focusedIcon: "car-arrow-left" },
-        { key: "profile", title: "الحساب", focusedIcon: "account" },
+        { key: "users", title: "الحساب", focusedIcon: "account" },
       ];
     }
   }, [userAccess]);
@@ -81,12 +68,14 @@ const Dashboard = () => {
   const renderScene = React.useMemo(() => {
     const sceneMap: any = {
       requests: RequestsDashboard,
-      profile: ProfileDashboard,
     };
 
     if (userAccess === "full") {
       sceneMap.dashboard = HomeDashboard;
       sceneMap.users = UsersDashboard;
+      sceneMap.profile = ProfileDashboard;
+    } else {
+      sceneMap.users = ProfileDashboard;
     }
 
     return BottomNavigation.SceneMap(sceneMap);

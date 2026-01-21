@@ -169,14 +169,12 @@ export default function UsersDashboard() {
                 <DataTable style={{ width: "100%" }}>
                   <DataTable.Header style={{ width: "100%" }}>
                     <DataTable.Title style={{ flex: 2 }}>الاسم</DataTable.Title>
+
                     <DataTable.Title style={{ flex: 2 }}>
-                      البريد الإلكتروني
-                    </DataTable.Title>
-                    <DataTable.Title style={{ flex: 1 }}>
                       الصلاحية
                     </DataTable.Title>
                     {isAdminFullAccess && (
-                      <DataTable.Title style={{ flex: 1 }}>
+                      <DataTable.Title style={{ flex: 0.55 }}>
                         إجراءات
                       </DataTable.Title>
                     )}
@@ -189,15 +187,8 @@ export default function UsersDashboard() {
                           {admin.full_name || "بدون اسم"}
                         </Text>
                       </DataTable.Cell>
+
                       <DataTable.Cell style={{ flex: 2 }}>
-                        <Text
-                          numberOfLines={1}
-                          className="text-gray-600 text-sm"
-                        >
-                          {admin.email}
-                        </Text>
-                      </DataTable.Cell>
-                      <DataTable.Cell style={{ flex: 1 }}>
                         <View className="flex-row items-center">
                           <View
                             className="w-2 h-2 rounded-full mr-2"

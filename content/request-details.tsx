@@ -1,6 +1,6 @@
 import { useModal } from "@/providers/modal-provider";
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { Button, Divider } from "react-native-paper";
 type RequestDetailsContentProps = {
   from: string;
@@ -12,6 +12,7 @@ type RequestDetailsContentProps = {
   onDelete?: () => void;
   onAccept?: () => void;
   onReject?: () => void;
+  onDone?: () => void;
 };
 
 export default function RequestDetailsContent({
@@ -23,6 +24,7 @@ export default function RequestDetailsContent({
   onDelete,
   onAccept,
   onReject,
+  onDone,
   status,
 }: RequestDetailsContentProps) {
   const { close } = useModal();
@@ -48,8 +50,15 @@ export default function RequestDetailsContent({
     close();
   };
 
+  const handleDone = async () => {
+    if (onDone) {
+      onDone();
+    }
+    close();
+  };
+
   return (
-    <ScrollView className="h-full w-full p-12">
+    <View className=" flex-1 p-12">
       <View>
         <Text className="text-lg font-semi-bold mb-2 text-center">
           تفاصيل الطلب
@@ -89,9 +98,22 @@ export default function RequestDetailsContent({
             تم رفض الطلب
           </Text>
         ) : status === "processing" ? (
-          <Text className="text-primary text-center font-reg mt-4">
-            الطلب قيد المعالجة
-          </Text>
+          <>
+            <Text className="text-primary text-center font-reg mt-4">
+              الطلب قيد المعالجة
+            </Text>
+            <Button
+              icon={"check"}
+              buttonColor="#22c55e"
+              mode="contained"
+              onPress={handleDone}
+              style={{
+                marginTop: 16,
+              }}
+            >
+              تم انجاز الطلب
+            </Button>
+          </>
         ) : (
           <>
             <Text className="text-yellow-500 text-center font-reg my-4">
@@ -129,6 +151,6 @@ export default function RequestDetailsContent({
           </Button>
         )}
       </View>
-    </ScrollView>
+    </View>
   );
 }
