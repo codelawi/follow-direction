@@ -42,14 +42,14 @@ interface UserRole {
 | Limited Admin | Read all profiles         |
 | Full Admin    | Full CRUD on all profiles |
 
-🔔 Push Notification System
+## 🔔 Push Notification System
 
-Real-time notifications via Expo
+- \*\*Real-time notifications via Expo
 
-Broadcast notifications (admins only)
+- \*\*Broadcast notifications (admins only)
 
-Targeted notifications per user
+- \*\*Targeted notifications per user
 
-Expo push token storage
+- \*\*Expo push token storage
 
-Background delivery support
+- \*\*Background delivery support
