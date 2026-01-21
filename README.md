@@ -35,3 +35,9 @@ interface UserRole {
   access: "limit" | "full"; // Limited or full permissions
 }
 ```
+
+| Role          | Permissions               |
+| ------------- | ------------------------- |
+| User          | Read own profile          |
+| Limited Admin | Read all profiles         |
+| Full Admin    | Full CRUD on all profiles |
