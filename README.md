@@ -44,9 +44,9 @@ interface UserRole {
 
 ## 🔔 Push Notification System
 
-- \*\*Real-time notifications via Expo
+- Real-time notifications via Expo
 
-- \*\*Broadcast notifications (admins only)
+- Broadcast notifications (admins only)
 
 - \*\*Targeted notifications per user
 
