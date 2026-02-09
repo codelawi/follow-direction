@@ -19,13 +19,10 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "buildType": "apk",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.codelawi_92.followdirection"
-    },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
       "expo-router",
@@ -40,6 +37,16 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "33.0.2"
+          }
+        }
       ]
     ],
     "experiments": {
@@ -49,9 +56,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "220df5b1-11ec-40f2-8d1c-268f67f8417c"
+        "projectId": "74b87541-4304-4dc1-8a50-b8bd87f4e341"
       }
     },
-    "owner": "codelawi92s-organization"
+    "owner": "jojo-follows-organization"
   }
 }

@@ -1,100 +1,105 @@
 // hooks/use-push-notification.ts
 import { supabase } from "@/lib/supabase";
-import Constants from "expo-constants";
-import * as Notifications from "expo-notifications";
 import { useCallback, useEffect, useRef } from "react";
 import { Platform } from "react-native";
 import { useAuth } from "./use-auth";
 
-// Configure notification handler for foreground
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowAlert: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// Lazy load expo-notifications to avoid crashes in production
+let Notifications: any = null;
+async function loadNotifications() {
+  if (!Notifications) {
+    Notifications = await import("expo-notifications");
+  }
+  return Notifications;
+}
 
 export default function usePushNotification() {
   const { user, loading } = useAuth();
   const notificationListener = useRef<any>(null);
   const responseListener = useRef<any>(null);
 
-  // Configure notification channels for Android
+  // Setup notification handler and channels
   useEffect(() => {
-    if (Platform.OS === "android") {
-      Notifications.setNotificationChannelAsync("default", {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
-    }
-  }, []);
+    let mounted = true;
 
-  // Setup notification listeners
-  useEffect(() => {
-    // Listen for incoming notifications while app is in foreground
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        console.log("📨 Notification received in foreground:", notification);
-        // Handle foreground notifications here
-      });
+    (async () => {
+      try {
+        const Notifications = await loadNotifications();
 
-    // Listen for notification responses (user taps on notification)
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log("👆 Notification tapped:", response);
-        handleNotificationResponse(response);
-      });
+        // Only set handler once
+        Notifications.setNotificationHandler({
+          handleNotification: async () => ({
+            shouldPlaySound: true,
+            shouldSetBadge: true,
+            shouldShowAlert: true,
+          }),
+        });
 
-    // Handle notifications when app is launched from closed state
-    const handleLaunchFromNotification = async () => {
-      const response = await Notifications.getLastNotificationResponseAsync();
-      if (response) {
-        console.log("App launched from notification:", response);
-        // Small delay to ensure app is ready
-        setTimeout(() => {
-          handleNotificationResponse(response);
-        }, 500);
+        // Configure Android notification channel
+        if (Platform.OS === "android") {
+          await Notifications.setNotificationChannelAsync("default", {
+            name: "default",
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: "#FF231F7C",
+          });
+        }
+
+        // Listen for foreground notifications
+        notificationListener.current =
+          Notifications.addNotificationReceivedListener((notification: any) => {
+            console.log(
+              "📨 Notification received in foreground:",
+              notification,
+            );
+          });
+
+        // Listen for notification responses
+        responseListener.current =
+          Notifications.addNotificationResponseReceivedListener(
+            (response: any) => {
+              handleNotificationResponse(response);
+            },
+          );
+
+        // Handle launch from notification (closed state)
+        const response = await Notifications.getLastNotificationResponseAsync();
+        if (response) {
+          console.log("App launched from notification:", response);
+          setTimeout(() => {
+            handleNotificationResponse(response);
+          }, 500);
+        }
+      } catch (e) {
+        console.warn("Notifications module not available:", e);
       }
-    };
+    })();
 
-    handleLaunchFromNotification();
-
-    // Cleanup listeners on unmount
     return () => {
-      if (notificationListener.current) {
-        notificationListener.current.remove();
-      }
-      if (responseListener.current) {
-        responseListener.current.remove();
-      }
+      mounted = false;
+      notificationListener.current?.remove?.();
+      responseListener.current?.remove?.();
     };
   }, []);
 
-  // Handle notification response (tapping on notification)
   const handleNotificationResponse = useCallback((response: any) => {
     const data = response.notification.request.content.data;
-
-    // Show alert for test notifications
     if (data?.type === "test") {
+      console.log("Test notification tapped:", data);
     }
   }, []);
 
-  // Auto-register token when user logs in
+  // Register push token when user logs in
   useEffect(() => {
     if (user && !loading) {
       registerToken();
     }
   }, [user, loading]);
 
-  // Register for push notifications
   const registerToken = useCallback(async () => {
     try {
-      // Request permission
+      const Notifications = await loadNotifications();
+
       const { status: existingStatus } =
         await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
@@ -111,19 +116,12 @@ export default function usePushNotification() {
 
       console.log("Notification permission granted");
 
-      // Get push token
-      const token =
-        Constants.appOwnership === "expo"
-          ? (
-              await Notifications.getExpoPushTokenAsync({
-                projectId: Constants.expoConfig?.extra?.eas?.projectId,
-              })
-            ).data
-          : (await Notifications.getExpoPushTokenAsync()).data;
+      // Get Expo push token
+      const token = (await Notifications.getExpoPushTokenAsync()).data;
 
       console.log("Expo push token:", token);
 
-      // Save token to user's profile
+      // Save token to user profile
       const { error } = await supabase
         .from("profiles")
         .update({
@@ -149,7 +147,6 @@ export default function usePushNotification() {
   const sendToAllUsers = useCallback(
     async (title: string, body: string, data?: any) => {
       try {
-        // Get all users with push tokens
         const { data: users, error } = await supabase
           .from("profiles")
           .select("expo_push_token")
@@ -162,11 +159,8 @@ export default function usePushNotification() {
           .map((user) => user.expo_push_token)
           .filter(Boolean) as string[];
 
-        if (tokens.length === 0) {
-          return { sent: 0, total: 0 };
-        }
+        if (!tokens.length) return { sent: 0, total: 0 };
 
-        // Create notification content
         const notificationContent = {
           to: tokens,
           sound: "default",
@@ -177,7 +171,6 @@ export default function usePushNotification() {
             sentAt: new Date().toISOString(),
             senderId: user?.id,
           },
-          // Important: These ensure notifications work in background
           priority: "high",
           _displayInForeground: true,
           channelId: Platform.OS === "android" ? "default" : undefined,
@@ -198,7 +191,7 @@ export default function usePushNotification() {
         const result = await response.json();
         console.log("Push notification result:", result);
 
-        // Log the notification in database
+        // Log broadcast
         if (user?.id) {
           await supabase.from("notification_broadcasts").insert({
             sender_id: user.id,
@@ -213,7 +206,6 @@ export default function usePushNotification() {
         return { sent: tokens.length, total: tokens.length, result };
       } catch (error) {
         console.error("Error sending to all users:", error);
-
         throw error;
       }
     },
@@ -224,9 +216,7 @@ export default function usePushNotification() {
   const sendTestNotification = useCallback(async () => {
     try {
       const token = await registerToken();
-      if (!token) {
-        return;
-      }
+      if (!token) return;
 
       const response = await fetch("https://exp.host/--/api/v2/push/send", {
         method: "POST",
@@ -253,10 +243,6 @@ export default function usePushNotification() {
 
       const result = await response.json();
       console.log("Test notification result:", result);
-
-      if (result.data) {
-      } else {
-      }
     } catch (error) {
       console.error("Error sending test notification:", error);
     }
